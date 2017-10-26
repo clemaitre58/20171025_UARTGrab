@@ -1,0 +1,58 @@
+***UART USB : un port série supplémentaire pour mon Raspberry Pi***
+
+
+Votre Raspberry Pi possède quelques soit sa version un port série. 
+Ce port permet de prendre le contrôle de votre Raspberry Pi mais, ça reste une utilisation marginale.
+En effet, ce port est à coup sûre plus utile dans les communictaions entre processeurs et d'auters microcontroleurs que ce soit des arduino ou des micro plus classigues comme les ARM.
+
+Cependant si vous utilisez le port série de votre GPIO, cela vous prive de 2 broches IO de votre Framboise.
+De plus, co porte peut ne pas être disponible. En effet, si vous utiliser un [Hat](https://www.amazon.fr/Raspberry-Pi-2483095-Sense-Hat/dp/B014T2IHQ8/ref=sr_1_1?ie=UTF8&qid=1509020855&sr=8-1&keywords=hat+raspberry), votre port GPIO n'est plus aisement accessible.
+
+Pourtant, il existe des solution simple.
+
+# Port RS232 plus accessible! Une solution simple
+
+En effet, des modules complémentaires à brancher existent. Il suffit les brancher sur le port USB pour transformer votre pour USB en un port RS232 virtuel.
+On nomme ces modiles UART - USB.
+Dans mon cas, j'utilise [un modèle à moins 10€ qu'on peut trouver sur amazon](http://amzn.to/2zQzgZW). 
+Ce module m'est utile pour debugger la sortie RS232 d'un ARM (STN32L432KC), plus particulièrement ça me permet de voir si les données envoyées sur le port RS232 sont bien celles attendues.
+
+Je vais vous montrer comment réaliser cette tâche.
+
+# Mise en pratique
+
+Vous allez voir, c'est très très simple :
+
+- On branche le module sur le port USB du RPI. Il est détecté automatiquement. Nul besoin d'installer qqch. Pour ceux qui on pratiquer le port USB à ses débuts, je peux vous dire que c'est le bonheur.
+- On va utiliser un utilitaire pour lire le pors RS232 émuler sur USB.
+
+
+Pour cela :
+
+```bash
+grabserial -v -d "/dev/ttyUSB0" -b 115200 -w 8 -p N -s 1 -e 30
+```
+
+Cette commande signifie que vous allez éxécuter un grab, une lecture, du port /dev/ttyUSB0 (le port série émulé) avec le formalisme RS232 suivant :
+
+- 115200 bauds de vitesse
+- 8 bits de données
+- Parité pair
+- 1 bit de stop
+
+
+le tout pour une durée de 30sec.
+
+Le résultat de cette lecture est affiché dans la fenêtre de votre console. Si vous voulez logger les données dans un fichier il suffit de rediriger le flux vers un fichier.
+De cette façon :
+
+```bash
+grabserial -v -d "/dev/ttyUSB0" -b 115200 -w 8 -p N -s 1 -e 30 >> mon_fichier.log
+```
+
+#Et pour écrire sun ce port?
+
+L'application grabserial permet de rapidement faire un log. Pour des applications de lecture et d'écriture spécifique vous serez obliger d'écrire votre propre code.
+A mon sens le plus simple étant d'utiliser Python et la libraire [pyserial](https://pypi.python.org/pypi/pyserial).
+
+Alors prêt à manipuler une Uart USB.
